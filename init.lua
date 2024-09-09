@@ -39,8 +39,6 @@ for _, provider in ipairs(default_providers) do
   vim.g["loaded_" .. provider .. "_provider"] = 0
 end
 
-vim.g.python3_host_prog = "/home/joaov/.nix-profile/bin/python3"
-
 -- Set different shiftwidth values for different file types
 vim.api.nvim_create_autocmd("FileType", {
   pattern = { "lua" },
@@ -103,3 +101,25 @@ vim.filetype.add({
     astro = "astro",
   },
 })
+
+local is_wsl = vim.fn.has("wsl") == 1
+
+-- WSL Clipboard support
+if is_wsl then
+  -- This is NeoVim's recommended way to solve clipboard sharing if you use WSL
+  -- See: https://github.com/neovim/neovim/wiki/FAQ#how-to-use-the-windows-clipboard-from-wsl
+  vim.g.clipboard = {
+    name = "WslClipboard",
+    copy = {
+      ["+"] = "clip.exe",
+      ["*"] = "clip.exe",
+    },
+    paste = {
+      ["+"] = 'powershell.exe -c [Console]::Out.Write($(Get-Clipboard -Raw).tostring().replace("`r", ""))',
+      ["*"] = 'powershell.exe -c [Console]::Out.Write($(Get-Clipboard -Raw).tostring().replace("`r", ""))',
+    },
+    cache_enabled = 0,
+  }
+end
+
+vim.cmd([[colorscheme vesper]])
